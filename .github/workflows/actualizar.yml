@@ -33,6 +33,16 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: publicar
+      - name: Esperar a que el archivo este disponible
+        if: hashFiles('publicar/elganso.xml') != ''
+        run: sleep 20
       - if: hashFiles('publicar/elganso.xml') != ''
         id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Esperar antes de reintentar
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+      - name: Reintentar publicacion
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
